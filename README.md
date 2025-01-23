@@ -12,28 +12,8 @@ scikit-learn
 pandas
 joblib
 ---------------------------------------------
-RESPONSE-
-{
-  "message": "Model trained successfully.",
-  "metrics": {
-    "accuracy": 0.95,
-    "f1_score": 0.94
-  }
-}
-{
-  "Downtime": "Yes",
-  "Confidence": 0.85
-}
---------------------------------------------
-FILE STRUCTURE:
 
-project/
-├── app.py                  # Flask application file
-├── model.py                # Model code for training and prediction
-├── models/                 # Directory for saving the trained model
-│   └── trained_model.pkl   # Saved model file
-└── data/                   # Directory for uploaded datasets
-    └── uploaded_dataset.csv
+--------------------------------------------
 ---------------------------------------------------
 Notes:-
 
@@ -47,19 +27,19 @@ Based on the requirements outlined in the document, the provided Flask code meet
 The /upload endpoint accepts CSV files and extracts columns, saving them for later use. This is in line with the requirement to handle datasets that include key columns like Machine_ID, Temperature, Run_Time, and Downtime_Flag.
 2. Model
 The code uses a RandomForestClassifier model to predict downtime based on uploaded data, which is a simple supervised machine learning model as requested (although Logistic Regression or Decision Tree would be suitable as well). This fulfills the "predict machine downtime or product defects" part of the assignment.
-3. Endpoints
+3. Endpoints:
 /upload: Accepts a CSV file and extracts columns (meets the upload endpoint requirement).
 /train: Trains the model on the uploaded dataset and provides performance metrics (accuracy, F1 score), fulfilling the "train" requirement.
 /predict: Accepts JSON input, makes predictions, and returns the result in JSON format, as required.
-4. Output Format
+5. Output Format:
 The /predict endpoint returns a JSON response with "Downtime" and "Confidence" fields, which matches the output format requirement:
 json
 Copy
 Edit
 { "Downtime": "Yes", "Confidence": 0.85 }
-5. Flask and scikit-learn
+6. Flask and scikit-learn
 The API is implemented in Flask, and the model uses scikit-learn for the RandomForestClassifier, fulfilling the technical requirements.
-6. Testing Locally
+7. Testing Locally
 The app can be tested locally using tools like Postman or curl, as described in the provided code.
 Suggested README
 Here’s a README based on the requirements and the current code:
