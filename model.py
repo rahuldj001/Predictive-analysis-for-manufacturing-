@@ -25,16 +25,32 @@ def preprocess_data(df, target_column=None):
         y (pd.Series): Target variable.
         categorical_columns (list): List of detected categorical columns.
     """
+    # Print columns to debug
+    print("Columns in DataFrame:", df.columns.tolist())
+
     # If no target column is specified, try to infer it
     if target_column is None:
         potential_targets = ['Downtime_Flag', 'target', 'label']
         target_column = next((col for col in potential_targets if col in df.columns), None)
         if not target_column:
             raise ValueError("No target column found. Please specify a target column explicitly.")
+    
+    print("Target column:", target_column)
 
     # Create target column if required (specific to downtime logic)
     if 'Down time Hours' in df.columns and target_column == 'Downtime_Flag':
         df[target_column] = (df['Down time Hours'] > 1).astype(int)
+
+    # Convert continuous target to binary classes based on a threshold, e.g., 1.0
+    if df[target_column].dtype != 'int64':
+        threshold = 1.0  # Set your threshold here
+        df[target_column] = (df[target_column] > threshold).astype(int)
+
+    # Handle missing values in the target column
+    if df[target_column].isnull().any() or (df[target_column] == float('inf')).any() or (df[target_column] == float('-inf')).any():
+        print("Imputing missing values in target column")
+        imputer = SimpleImputer(strategy='mean')
+        df[target_column] = imputer.fit_transform(df[[target_column]]).ravel()
 
     # Drop unnecessary or known irrelevant columns
     drop_columns = ['Production ID', 'Date', 'Defects', 'Down time Hours']
@@ -49,7 +65,7 @@ def preprocess_data(df, target_column=None):
     for col in categorical_cols:
         df[col] = encoder.fit_transform(df[col].astype(str))
 
-    # Handle missing values
+    # Handle missing values in numerical columns
     imputer = SimpleImputer(strategy='mean')
     df[numerical_cols] = imputer.fit_transform(df[numerical_cols])
 
@@ -57,6 +73,7 @@ def preprocess_data(df, target_column=None):
     X = df.drop(columns=[target_column])
     y = df[target_column]
     return X, y, categorical_cols
+
 
 
 def train_model(file_path, target_column=None):

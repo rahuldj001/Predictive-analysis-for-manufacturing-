@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import os
 import pandas as pd
 from model import train_model, load_model
@@ -14,7 +14,7 @@ REQUIRED_COLUMNS_FILE = os.path.join(UPLOAD_FOLDER, 'required_columns.txt')
 
 @app.route('/')
 def home():
-    return "Welcome to the Manufacturing Predictive API! Use /upload, /train, and /predict to interact."
+    return render_template('index.html')  # Serve the HTML page
 
 
 @app.route('/upload', methods=['POST'])
@@ -60,10 +60,10 @@ def train():
         with open(REQUIRED_COLUMNS_FILE, 'w') as f:
             f.write(','.join(required_columns))
 
-        return jsonify({"message": "Model trained successfully.", "metrics": metrics}), 200
+        # Return success message without metrics
+        return jsonify({"message": "Model trained successfully."}), 200
     except Exception as e:
         return jsonify({"error": f"Training failed: {str(e)}"}), 500
-
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -83,9 +83,14 @@ def predict():
         input_df = pd.DataFrame([input_data])
         input_df = input_df.reindex(columns=required_columns, fill_value=0)
 
+        print("Input DataFrame:", input_df)
+
         # Make prediction
         prediction = model.predict(input_df)
         probabilities = model.predict_proba(input_df)
+
+        print("Prediction:", prediction)
+        print("Probabilities:", probabilities)
 
         return jsonify({
             "Downtime": "Yes" if prediction[0] == 1 else "No",
@@ -95,7 +100,7 @@ def predict():
         return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
 
 
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-
 
