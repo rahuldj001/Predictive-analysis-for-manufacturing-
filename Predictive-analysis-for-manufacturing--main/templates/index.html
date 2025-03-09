@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Manufacturing Predictive API</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Manufacturing Predictive API</h1>
+        
+        <h2>Upload Dataset</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="uploadResponse"></div>
+
+        <h2>Train Model</h2>
+        <button id="trainButton">Train Model</button>
+        <div id="trainResponse"></div>
+
+        <h2>Make Prediction</h2>
+        <form id="predictForm">
+            <textarea name="input_data" placeholder='{"column1": value1, "column2": value2, ...}' required></textarea>
+            <button type="submit">Predict</button>
+        </form>
+        <div id="predictResponse"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            document.getElementById('uploadResponse').innerText = JSON.stringify(result);
+        };
+
+        document.getElementById('trainButton').onclick = async function() {
+            const response = await fetch('/train', {
+                method: 'POST'
+            });
+            const result = await response.json();
+            document.getElementById('trainResponse').innerText = JSON.stringify(result);
+        };
+
+        document.getElementById('predictForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const inputData = JSON.parse(this.input_data.value);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(inputData)
+            });
+            const result = await response.json();
+            document.getElementById('predictResponse').innerText = JSON.stringify(result);
+        };
+    </script>
+</body>
+</html>
